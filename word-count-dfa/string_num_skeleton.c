@@ -12,77 +12,108 @@
      english letters and the only allowable punctuation is space, comma, 
      and period. 
  */
-int alphabet[128] ;
+int alphabet[128];
+int word_length = 0;
 
 /*
 ------ THE SUBROUTINES BELOW ARE RECOMMENDED ------
 
-
-
-
-  
 void print_trans_table()
-  
-void construct_trans_table() 
-  
+
+void construct_trans_table()
+
+
 */
 
-/*Returns the length of the input word*/
 int get_word_length(char *word) {
 
   int i = 0;
   while (word[i] != '\0') {
-    i++;
+    i++ ;
   }
 
   return (i);
 }
 
-/*Returns pointer to an array of unique characters in the given word*/
-char * get_unique_symbols(char *word) {
+/*number of unique characters in a word*/
+int get_num_characters(char *word) {
 
-  int word_length = get_word_length(word);
-  int num_unique_symbols = 0;
-  char symbols_found[word_length];
+  /*Characters are identified by ascii value*/
+  int current_letter = 0;
+  int characters_found[word_length];
+  int num_unique_characters = 0;
 
+  //Initialize array of found characters
   for (int i = 0; i < word_length; i++) {
-    symbols[i] = '\0';
+    characters_found[i] = 0;
   }
 
-  /*Make an array of unique characters in the word*/
+  /*Get unique characters in the word*/
   for (int i = 0; i < word_length; i++) {
+    current_letter = (int) word[i];
+    
     for (int j = 0; j < word_length; j++) {
+      
+      if ( current_letter == characters_found[j] ) {
+        break;
+      }
 
-      /*Repeated Letter*/
-      if (symbols[j] == word[i]) break;
-
-      /*New Letter*/
-      if ( symbols[j] == '\0' ) {
-
-        symbols[j] = word[i];
-        num_unique_symbols++;
+      if ( characters_found[j] == 0 ) {
+        characters_found[j] = (int) word[i];
+        printf("%s\n", word[i]);
+        num_unique_characters++;
         break;
       }
     }
   }
 
-  /*Array to return*/
-  for (int i = 0; i < num_unique_symbols; i++) {
-
-    int ascii_index = symbols[i];
-
-    alphabet[i] = 1;
-
-  }
-
-  return ret;
-
-}
-
-/*
-int get_num_sym(char *word, int word_length){
+  return num_unique_characters;
   
 }
+
+
+// int * get_unique_characters(char *word) {
+
+//   int word_length = get_word_length(word);
+//   /*Characters are identified by ascii value*/
+//   int current_letter = 0;
+//   int characters_found[word_length];
+//   int num_unique_characters = 0;
+
+//   //Initialize array of found characters
+//   for (int i = 0; i < word_length; i++) {
+//     characters_found = 0;
+//   }
+
+//   /*Make an array of unique characters in the word
+//   i is the letter in the word we're evaluating*/
+//   for (i = 0; i < word_length; i++) {
+
+//     current_letter = (int) word[i];
+//     /*j is the position in the characters found array we're comparing against*/
+//     for (int j = 0; j < word_length; j++) {
+
+//       /*Break if we've seen this letter before*/
+//       if (current_letter == word_l) {
+//         break;
+//       }
+//       /*Add letter if current spot is empty empty spot*/
+//       if ( characters_found[i] == 0 ) {
+//         characters_found[j] = (int) word[i];
+//         break;
+//       }
+//     }
+
+//     memcpy(&alphabet, &characters_found, sizeof(characters_found));
+//     return &alphabet;
+//   }
+
+
+//   return alphabet;
+
+// i}
+
+/*
 */
 int main(int argc, char *argv[])
 {
@@ -121,14 +152,19 @@ int main(int argc, char *argv[])
   printf("\n") ;
 
   /////////////////////////////////////////////////////////////////////////
-  
-  int word_length = get_word_length(word);
-  printf("%d\n", word_length);
 
-  
+  int l;
+  int num_characters;
 
+  for (int l = 0; l < 128; l++) {
+    alphabet[l] = 0;
+  }
 
-return 0;
+  word_length = get_word_length(word);
+  printf("Word Length: %i\n", word_length);
+  num_characters = get_num_characters(word);
+  printf("Num of Unique Characters in %s: %i\n", word, num_characters);
+  return 0;
 
 }
 
