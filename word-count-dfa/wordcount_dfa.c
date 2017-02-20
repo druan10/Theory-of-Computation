@@ -37,34 +37,17 @@ int get_word_length(char *word) {
   return (i);
 }
 
-/*number of unique characters in a word*/
+/*Return the number of unique characters found in our alphabet*/
 int get_num_characters(char *word) {
 
-  /*Characters are identified by ascii value*/
-  int current_letter = 0;
-  int characters_found[word_length];
-  int num_unique_characters = 0;
-  //Initialize array of found characters
-  for (int i = 0; i < word_length; i++) {
-    characters_found[i] = 0;
-  }
-  /*Get unique characters in the word*/
-  for (int i = 0; i < word_length; i++) {
-    current_letter = (int) word[i];
-    for (int j = 0; j < word_length; j++) {
-      if ( current_letter == characters_found[j] ) {
-        break;
-      }
-      if ( characters_found[j] == 0 ) {
-        characters_found[j] =  current_letter;
-        printf("%c\n", (char) current_letter);
-        num_unique_characters++;
-        break;
-      }
-    }
+  int count = 0;
 
+  for (int i = 0; i < 128; i++) {
+    if ( alphabet[i] > 1 ) {
+      count++;
+    }
   }
-  return num_unique_characters;
+  return count;
 
 }
 
@@ -137,11 +120,10 @@ int main(int argc, char *argv[])
   num_of_characters = get_num_characters + 3;*/
 
   word_length = get_word_length(word);
-  num_of_characters = get_num_characters(word);
 
   printf("Word Length: %i\n", word_length);
-  construct_frequency_table(word);
-  printf("Num of Unique Characters in \'%s\': %i\n", word, num_of_characters);
+  num_of_characters = construct_frequency_table(word);
+  printf("Number of Unique Characters in \'%s\': %i\n", word, num_of_characters);
   return 0;
 
 }
