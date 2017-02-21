@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 int alphabet[128]; //Characters in the language
-int ascii_values[128]; //Used to hold ascii values of characters in order
+int ascii_values_of_unique_characters[128];
 int word_length = 0, num_of_unique_characters = 0, num_of_symbols = 0, num_of_states = 0;
 int transition_table[100][128]; //[state][column]
 char *file_contents;
@@ -15,7 +15,6 @@ int get_word_length(char* word){
   return (i);
 }
 
-/*Return the number of unique characters found in our alphabet*/
 int get_num_of_unique_characters() {
   int i, count = 0;
   for (i = 0; i < 128; i++) {
@@ -27,7 +26,7 @@ int get_num_of_unique_characters() {
 /*Construct character frequency table for the given word*/
 void construct_frequency_table(char *word) {
   int i, count = 0, ascii_value = 0;
-  
+
   for (i = 0; i < 128; i++) {alphabet[i] = 0;}
 
   for (i = 0; i < word_length; i++){ 
@@ -38,24 +37,15 @@ void construct_frequency_table(char *word) {
       alphabet[ascii_value]++;
     }
   }
-
-  // i = 0;
-  // printf("Unique Characters Found: ");
-
-  // for (i = 0; i < 128; i++){
-  //   if ( alphabet[i] != 0){
-  //     printf(" %c", (char) i);
-  //   }
-  // }
-  // printf("\n");
 }
 
 
-void print_trans_table(char *word){
+void print_transition_table(char *word){
+
   //Print Heading
   printf(" * | _ , .");
   for (int i = 0; i < word_length; i++) {
-    printf(" %c", (char) ascii_values[i]);
+    printf(" %c", (char) ascii_values_of_unique_characters[i]);
   }
   printf("\n");
   //Print Table
@@ -66,27 +56,128 @@ void print_trans_table(char *word){
     }
   printf("\n");
   }
+
 }
 
 void construct_transition_table(char *word) {
   //Calculate the properties for the transition table
   construct_frequency_table(word);
-  num_of_symbols = get_num_of_unique_characters() + 3; 
-  num_of_states = word_length + 4; 
+  //
+  num_of_states = word_length + 4; //Row in table
+  num_of_symbols = get_num_of_unique_characters() + 3; //Col in Table
 
-  int count = 0;
+  printf("Number of States: %i\n", num_of_states);
+  printf("Number of Symbols %i\n", num_of_symbols);
 
-  for (int i = 0; i < 128; i++){
-    if ( alphabet[i] != 0 ) {
-      ascii_values[count] = i;
-      count++;
+  int count, i, j, found_flag = 0, current_char = 0, row = 0, word_in_ascii[word_length];
+
+  for (i = 0; i < word_length; i++){
+    word_in_ascii[i] = (int) word[i];
+  }
+
+  //Initialize Transition Table (most of it redirects to state 1)
+  for (i = 0; i < num_of_states; i++){
+    for (j = 0; j < num_of_symbols; j++){
+      transition_table[i][j] = 1;
     }
   }
 
-  printf("Number of Symbols in transition table: %i\n", num_of_symbols);
-  printf("Number of States: %i\n", num_of_states);
-  print_trans_table(word);
+  transition_table[0][0] = 2;
+  transition_table[1][0] = 2;
+  
+  count=0;
+  for (i = 0; i < 128; i++){
+    if ( alphabet[i] != 0 ) {
+      ascii_values_of_unique_characters[count] = i; //looks like [first_letter,second_letter,...,last_letter]
+      printf("%c\n", (char) ascii_values_of_unique_characters[count]);
+      count++;
+    }
+  }
+  
+  //Second to Last Row
+  for (i = 0; i < 3; i++){
+    transition_table[num_of_states-2][i] = num_of_states-1;
+  }
+
+  //First and third row, in case first letter is the first letter of the word
+  for (i = 0; i < word_length; i++){
+    if (word_in_ascii[0] == ascii_values_of_unique_characters[i]){
+      transition_table[0][i+3]=3;
+      transition_table[2][i+3]=3;
+    }
+  }
+
+  for (row = 3; row < num_of_states-2; row++){ //fourth to third to last row
+    j=0;
+    while (0==0){
+      if (ascii_values_of_unique_characters[row-3] == word_in_ascii[j++]){
+        transition_table[row][j+1]=row+1;
+        break;
+      }
+    }
+    
+
+  }
+
+
+
+  print_transition_table(word);
 }
+
+int grep_string(char *word, char *string){ 
+  int flag = 0, k, i;  
+  int current_state = 0, appearances = 0, index = 3; 
+
+  int accepting_state = num_of_states - 1;
+
+  int symbols_in_ascii[num_of_symbols+3];
+
+  symbols_in_ascii[0] = 46;
+  symbols_in_ascii[1] = 44;
+  symbols_in_ascii[2] = 32;
+
+  //Sets int array holding the ascii value of the possible symbols, (letters in alphabetical order)
+  for (i = 0; i < 128; i++) { 
+    if(alphabet[i] != 0) { 
+      symbols_in_ascii[index] = i;
+      index++; 
+    } 
+  } 
+
+  word_length = get_word_length(word); 
+
+  for (k = 0;k < input_file_size; k++) { //parse input string
+
+    int change_state_flag = 0; //If we haven't changed state, we didn't identify the character as a possible symbol
+    int current_char = file_contents[k]; 
+
+    for (i = 0; i < num_of_symbols; i++) { 
+
+      if (current_char == symbols_in_ascii[i] || current_char == symbols_in_ascii[i]-32) {
+        current_state = transition_table[i][current_state]; change_state_flag = 1; 
+      } 
+    } 
+
+    if (change_state_flag == 0){
+      current_state = 1; 
+    } 
+
+    if(current_state == accepting_state) { 
+      appearances++; current_state = 2; 
+    } 
+
+    if(file_contents[k] == '\n') { 
+      printf("\""); flag = 1; 
+    } 
+
+    printf("%c",file_contents[k]); 
+
+  } 
+
+  if(flag == 0) {printf("\""); } 
+  printf("\n"); 
+  printf("There were a total of %d occurances\n", appearances); 
+} 
 
 int main(int argc, char *argv[])
 {
