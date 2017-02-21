@@ -107,19 +107,19 @@ void construct_transition_table(char *word) {
     }
   }
 
-  for (row = 3; row < num_of_states-2; row++){ //fourth to third to last row
-    j=0;
-    while (0==0){
-      if (ascii_values_of_unique_characters[row-3] == word_in_ascii[j++]){
-        transition_table[row][j+1]=row+1;
+  int character_to_find=0;
+  for (row = 3; row < num_of_symbols; row++){
+    character_to_find = word[row-2];
+    printf("Character to find: %c\n", (char) word[row-2]);
+
+    for (i = 0; i < num_of_symbols; i++){
+      if (ascii_values_of_unique_characters[i]==character_to_find){
+        transition_table[row][i+3] = row+1;
         break;
       }
     }
     
-
   }
-
-
 
   print_transition_table(word);
 }
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
   word_length = get_word_length(word);
   printf("Word Length: %i\n", word_length);
   construct_transition_table(word);
-  num_of_unique_characters=get_num_of_unique_characters();
+  grep_string(word, file_contents);
   printf("Number of Unique Characters in \'%s\': %i\n", word, num_of_unique_characters);
   return 0;
 
