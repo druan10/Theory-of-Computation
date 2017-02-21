@@ -107,6 +107,7 @@ void construct_transition_table(char *word) {
     }
   }
 
+  //Sets the values of the fourth to second to last rows linking letters
   int character_to_find=0;
   for (row = 3; row < num_of_symbols; row++){
     character_to_find = word[row-2];
@@ -125,37 +126,43 @@ void construct_transition_table(char *word) {
 }
 
 int grep_string(char *word, char *string){ 
-  int flag = 0, k, i;  
-  int current_state = 0, appearances = 0, index = 3; 
+  int k, i;  
+  int current_state = 0, appearances = 0, count = 0, index = 3; 
 
   int accepting_state = num_of_states - 1;
 
-  int symbols_in_ascii[num_of_symbols+3];
+  int symbols_in_ascii[num_of_symbols];
 
-  symbols_in_ascii[0] = 46;
+  symbols_in_ascii[0] = 32;
   symbols_in_ascii[1] = 44;
-  symbols_in_ascii[2] = 32;
+  symbols_in_ascii[2] = 46;
 
-  //Sets int array holding the ascii value of the possible symbols, (letters in alphabetical order)
-  for (i = 0; i < 128; i++) { 
-    if(alphabet[i] != 0) { 
-      symbols_in_ascii[index] = i;
-      index++; 
-    } 
-  } 
+  count = 3;
+  //set up symbols array
+  for (i = 3; i < num_of_symbols; i++){
+    symbols_in_ascii[i]=ascii_values_of_unique_characters[i-3];
+  }
+  // Print ordered symbols in transition table
+  // for (i = 0; i <num_of_symbols; i++){
+  //   printf("%c\n", symbols_in_ascii[i]);
+  // }
 
   word_length = get_word_length(word); 
 
   for (k = 0;k < input_file_size; k++) { //parse input string
 
     int change_state_flag = 0; //If we haven't changed state, we didn't identify the character as a possible symbol
-    int current_char = file_contents[k]; 
+    int current_char = (int) file_contents[k]; 
 
     for (i = 0; i < num_of_symbols; i++) { 
 
-      if (current_char == symbols_in_ascii[i] || current_char == symbols_in_ascii[i]-32) {
-        current_state = transition_table[i][current_state]; change_state_flag = 1; 
+      if (current_char == symbols_in_ascii[i] || current_char == symbols_in_ascii[i]+32) {
+        //printf("%i\n", i);
+        current_state = transition_table[current_state][i]; 
+        change_state_flag = 1; 
+        // printf("New state is %s\n", current_state);
       } 
+
     } 
 
     if (change_state_flag == 0){
@@ -166,17 +173,12 @@ int grep_string(char *word, char *string){
       appearances++; current_state = 2; 
     } 
 
-    if(file_contents[k] == '\n') { 
-      printf("\""); flag = 1; 
-    } 
-
-    printf("%c",file_contents[k]); 
+    // printf("%c",file_contents[k]); 
 
   } 
 
-  if(flag == 0) {printf("\""); } 
   printf("\n"); 
-  printf("There were a total of %d occurances\n", appearances); 
+  printf("There word appeared %i times.\n", appearances); 
 } 
 
 int main(int argc, char *argv[])
@@ -219,7 +221,6 @@ int main(int argc, char *argv[])
   printf("Word Length: %i\n", word_length);
   construct_transition_table(word);
   grep_string(word, file_contents);
-  printf("Number of Unique Characters in \'%s\': %i\n", word, num_of_unique_characters);
   return 0;
 
 }
