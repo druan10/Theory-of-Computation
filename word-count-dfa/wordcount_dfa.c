@@ -29,6 +29,7 @@ void construct_frequency_table(char *word) {
   for (i = 0; i < 128; i++) {alphabet[i] = 0;}
   for (i = 0; i < word_length; i++){ 
     ascii_value = (int) word[i];
+    //set up only lowercase symbols
     if (ascii_value < 97){
       alphabet[ascii_value+32]++;
     } else {
@@ -39,12 +40,12 @@ void construct_frequency_table(char *word) {
 
 
 void print_transition_table(char *word) {
-  printf(" * | _ , .");
-  for (int i = 0; i < word_length; i++) {printf(" %c", (char) unique_characters[i]);}
+  printf("  * |  _  ,  .");
+  for (int i = 0; i < word_length; i++) {printf(" %2c", (char) unique_characters[i]);}
   printf("\n");
   for (int i = 0; i < num_of_states; i++) {
-    printf(" %i |",i);
-    for (int j = 0; j < num_of_symbols; j++) {printf(" %i", transition_table[i][j]);}
+    printf(" %2i |",i);
+    for (int j = 0; j < num_of_symbols; j++) {printf(" %2i", transition_table[i][j]);}
     printf("\n");
   }
   printf("\n");
@@ -75,9 +76,11 @@ void construct_transition_table(char *word) {
     }
   }
 
-  //Known 
+  //Known states
   transition_table[0][0] = 2;
   transition_table[1][0] = 2;
+  transition_table[1][1] = 2;
+  transition_table[1][2] = 2;
   
   count=0;
   for (i = 0; i < 128; i++){
@@ -129,6 +132,7 @@ int grep_string(char *word, char *string){
   count = 3;
   //set up symbols array
   for (i = 3; i < num_of_symbols; i++){
+    //copies unique characters to an array of symbols including the space period and comma
     symbols_in_ascii[i]=unique_characters[i-3];
   }
 
@@ -141,7 +145,7 @@ int grep_string(char *word, char *string){
 
     for (i = 0; i < num_of_symbols; i++) { 
 
-      if (current_char == symbols_in_ascii[i] || current_char +32 == symbols_in_ascii[i]) {
+      if (current_char == symbols_in_ascii[i] || current_char + 32 == symbols_in_ascii[i]) {
         //printf("%i\n", i);
         current_state = transition_table[current_state][i]; 
         change_state_flag = 1; 
@@ -155,10 +159,8 @@ int grep_string(char *word, char *string){
     } 
 
     if(current_state == accepting_state) { 
-      appearances++; current_state = 2; 
+      appearances++; current_state = 1; 
     } 
-
-    // printf("%c",file_contents[k]); 
 
   } 
 
@@ -203,10 +205,10 @@ int main(int argc, char *argv[])
   /////////////////////////////////////////////////////////////////////////
   
   word_length = get_word_length(word);
-  printf("Word Length: %i\n", word_length);
   construct_transition_table(word);
   printf("Number of States: %i\n", num_of_states);
   printf("Number of Symbols %i\n", num_of_symbols);
+  printf("Word Length: %i\n", word_length);
   grep_string(word, file_contents);
   return 0;
 
